@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +12,12 @@ namespace practica_progra
         static void Main(string[] args)
         {
             Autobanco autobanco = new Autobanco();
+            autobanco.CargarCuentas();
+            autobanco.CargarBovedas();
             autobanco.Iniciar();
+            autobanco.GuardarCuentas();
+            autobanco.GuardarBovedas();
+
 
         }
     }
