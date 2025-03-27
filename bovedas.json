@@ -1,0 +1,26 @@
+[
+  {
+    "TipoMoneda": "Quetzales",
+    "Denominacion": 50,
+    "Cantidad": 20000,
+    "UltimaActualizacion": "26/03/2025"
+  },
+  {
+    "TipoMoneda": "Quetzales",
+    "Denominacion": 10,
+    "Cantidad": 10000,
+    "UltimaActualizacion": "26/03/2025"
+  },
+  {
+    "TipoMoneda": "Quetzales",
+    "Denominacion": 1,
+    "Cantidad": 5000,
+    "UltimaActualizacion": "26/03/2025"
+  },
+  {
+    "TipoMoneda": "Dólares",
+    "Denominacion": 1,
+    "Cantidad": 10000,
+    "UltimaActualizacion": "26/03/2025"
+  }
+]
