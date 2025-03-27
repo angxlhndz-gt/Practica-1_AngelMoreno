@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace practica_progra
 {
@@ -27,13 +28,25 @@ namespace practica_progra
                 Cantidad -= billetesNecesarios;
                 return true;
             }
-            return false;
+            else
+            {
+                Console.WriteLine($"No hay suficientes billetes en la bóveda de denominación Q{Denominacion}.");
+                return false;
+            }
         }
 
         public void Depositar(int monto)
         {
-            Cantidad += monto / Denominacion;
+            if (monto % Denominacion == 0) 
+            {
+                Cantidad += monto / Denominacion;
+            }
+            else
+            {
+                Console.WriteLine($"El monto {monto} no es múltiplo de la denominación {Denominacion}.");
+            }
         }
+
 
     }
 }
