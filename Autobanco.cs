@@ -15,17 +15,25 @@ namespace practica_progra
         private List<Boveda> bovedas = new List<Boveda>();
         private int intentosPermitidos = 3;
         private int tipoDeCambio = 7;
+       
+        private int cantidadRetiros = 0;
+        private int cantidadDepositos = 0;
+        private int cantidadTransferencias = 0;
+        private int cantidadComprasDolares = 0; 
+        private int cantidadVentasDolares = 0;  
 
+        private List<Transaccion> historialTransacciones = new List<Transaccion>();
         public Autobanco()
         {
-            bovedas.Add(new Boveda("Quetzales", 50, 100)); // Bóveda de Q50
-            bovedas.Add(new Boveda("Quetzales", 10, 200)); // Bóveda de Q10
-            bovedas.Add(new Boveda("Quetzales", 1, 500));  // Bóveda de Q1
-            bovedas.Add(new Boveda("Dólares", 1, 100));    // Bóveda de dólares
+            bovedas.Add(new Boveda("Quetzales", 50, 100)); 
+            bovedas.Add(new Boveda("Quetzales", 10, 200)); 
+            bovedas.Add(new Boveda("Quetzales", 1, 500));  
+            bovedas.Add(new Boveda("Dólares", 1, 100));    
         }
 
         public void Iniciar()
         {
+            CargarHistorial();
             while (true)
             {
                 Console.Clear();
@@ -53,7 +61,7 @@ namespace practica_progra
                         GestionCuentas();
                         break;
                     case "5":
-                        GuardarDatos(); // Guarda bóvedas y cuentas antes de salir
+                        GuardarDatos(); 
                         Environment.Exit(0);
                         break;
                     default:
@@ -92,7 +100,7 @@ namespace practica_progra
                     ConfigurarCuentas();
                     break;
                 case "5":
-                    return; // Vuelve al menú principal
+                    return; 
                 default:
                     Console.Clear();
                     Console.WriteLine("Opción inválida. Presione ENTER para continuar.");
@@ -144,7 +152,10 @@ namespace practica_progra
             Console.WriteLine("1. Saldo total por bóveda");
             Console.WriteLine("2. Saldo por bóveda y denominación");
             Console.WriteLine("3. Saldo por cuenta");
-            Console.WriteLine("4. Regresar al menú principal");
+            Console.WriteLine("4. Ver historial de transacciones");
+            Console.WriteLine("5. Ver reporte de operaciones");
+            Console.WriteLine("6. Regresar al menú principal");
+
             Console.Write("Seleccione una opción: ");
             string opcion = Console.ReadLine();
 
@@ -160,9 +171,15 @@ namespace practica_progra
                     MostrarSaldoPorCuenta();
                     break;
                 case "4":
-                    return; 
-                default:
+                    MostrarHistorial();
+                    break;
+                case "5":
+                    MostrarReporteOperaciones();
+                    break;
+                case "6":
+                    return;
 
+                default:
                     Console.Clear();
                     Console.WriteLine("Opción inválida. Presione ENTER para continuar.");
                     Console.ReadLine();
@@ -326,12 +343,19 @@ namespace practica_progra
                     if (montoRestante > 0)
                     {
                         Console.WriteLine("No hay suficiente dinero en las bóvedas para completar el retiro.");
-                        cuenta.Depositar(monto); 
+                        cuenta.Depositar(monto);
                     }
                     else
                     {
                         Console.WriteLine($"Retiro completado exitosamente. Monto: Q{monto}");
-                        GuardarBovedas(); 
+                        GuardarBovedas();
+
+                       
+                        cantidadRetiros++;
+
+                        
+                        RegistrarTransaccion("Retiro", monto, $"Cuenta: {numeroCuenta}");
+                        GuardarHistorial();
                     }
                 }
                 else
@@ -373,9 +397,14 @@ namespace practica_progra
                     montoRestante -= billetesAAgregar * boveda.Denominacion;
                 }
 
-                GuardarBovedas(); 
+                GuardarBovedas();
 
                 Console.WriteLine($"Depósito completado exitosamente. Monto: Q{monto}");
+
+                cantidadDepositos++;
+
+                RegistrarTransaccion("Depósito", monto, $"Cuenta: {numeroCuenta}");
+                GuardarHistorial();
             }
             else
             {
@@ -421,6 +450,13 @@ namespace practica_progra
             {
                 destino.Depositar(monto);
                 Console.WriteLine("Transferencia completada exitosamente.");
+
+                
+                cantidadTransferencias++;
+
+               
+                RegistrarTransaccion("Transferencia", monto, $"Origen: {cuentaOrigen}, Destino: {cuentaDestino}");
+                GuardarHistorial();
             }
             else
             {
@@ -510,6 +546,13 @@ namespace practica_progra
                     
                     bovedaDolares.Depositar(dolares);
                     Console.WriteLine($"Compra completada. Pagaste Q{totalQuetzales} por ${dolares}.");
+
+                    
+                    cantidadComprasDolares++;
+
+                    
+                    RegistrarTransaccion("Compra de dólares", totalQuetzales, $"Compraste ${dolares} usando Q{totalQuetzales} de las bóvedas.");
+                    GuardarHistorial(); 
                 }
                 else
                 {
@@ -540,6 +583,13 @@ namespace practica_progra
                         {
                             bovedaQuetzales.Depositar(totalQuetzales);
                             Console.WriteLine($"Venta completada. Recibiste Q{totalQuetzales} por ${dolares}.");
+
+                            
+                            cantidadVentasDolares++;
+
+                            
+                            RegistrarTransaccion("Venta de dólares", totalQuetzales, $"Vendiste ${dolares} y recibiste Q{totalQuetzales} en las bóvedas.");
+                            GuardarHistorial(); 
                         }
                         else
                         {
@@ -749,5 +799,59 @@ namespace practica_progra
             string jsonContent = JsonSerializer.Serialize(bovedas, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText("bovedas.json", jsonContent);
         }
+
+        private void RegistrarTransaccion(string tipo, int valor, string detalle)
+        {
+            var nuevaTransaccion = new Transaccion(DateTime.Now, tipo, valor, detalle);
+            historialTransacciones.Add(nuevaTransaccion);
+        }
+
+        private void GuardarHistorial()
+        {
+            string jsonContent = JsonSerializer.Serialize(historialTransacciones, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText("historial.json", jsonContent);
+        }
+
+        private void CargarHistorial()
+        {
+            if (File.Exists("historial.json"))
+            {
+                string jsonContent = File.ReadAllText("historial.json");
+                historialTransacciones = JsonSerializer.Deserialize<List<Transaccion>>(jsonContent) ?? new List<Transaccion>();
+            }
+            else
+            {
+                historialTransacciones = new List<Transaccion>(); 
+            }
+        }
+
+        private void MostrarHistorial()
+        {
+            Console.WriteLine("+++ HISTORIAL DE TRANSACCIONES +++");
+            foreach (var transaccion in historialTransacciones)
+            {
+                Console.WriteLine($"Fecha: {transaccion.Fecha}");
+                Console.WriteLine($"Tipo: {transaccion.Tipo}");
+                Console.WriteLine($"Valor: Q{transaccion.Valor}");
+                Console.WriteLine($"Detalle: {transaccion.Detalle}");
+                Console.WriteLine("--------------------------");
+            }
+            Console.ReadLine();
+        }
+
+        private void MostrarReporteOperaciones()
+        {
+            Console.Clear();
+            Console.WriteLine("+++ REPORTE DE OPERACIONES +++");
+            Console.WriteLine($"Retiros realizados: {cantidadRetiros}");
+            Console.WriteLine($"Depósitos realizados: {cantidadDepositos}");
+            Console.WriteLine($"Transferencias realizadas: {cantidadTransferencias}");
+            Console.WriteLine($"Compras de dólares realizadas: {cantidadComprasDolares}");
+            Console.WriteLine($"Ventas de dólares realizadas: {cantidadVentasDolares}");
+            Console.WriteLine("------------------------------");
+            Console.WriteLine("Presione ENTER para volver al menú.");
+            Console.ReadLine();
+        }
     }
+
 }
