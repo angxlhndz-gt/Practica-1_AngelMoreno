@@ -11,7 +11,9 @@ namespace practica_progra
     {
         static void Main(string[] args)
         {
+
             Autobanco autobanco = new Autobanco();
+            
             autobanco.CargarCuentas();
             autobanco.CargarBovedas();
             autobanco.Iniciar();
